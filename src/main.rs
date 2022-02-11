@@ -8,18 +8,41 @@ fn main() {
 
     let args = std::env::args().collect::<Vec<String>>();
     match args[1].as_str().to_lowercase().as_str() {
-        "set_database" => { overwrite_default(args[2].clone()).ok().unwrap(); },
+        "set_database" => { 
+            if args.len() > 2 {
+                panic!("[FATAL ERROR]: Too many arguments!");
+            } else if args.len() < 2 {
+                panic!("[FATAL ERROR]: Not enough arguments!");
+            }
+            overwrite_default(args[2].clone()).ok().unwrap(); 
+            db = read_database();
+        },
         "print_database" => { println!("{:?}", read_default()); }
         "read" => { db = read_database(); }
         "insert" => { 
+            if args.len() > 3 {
+                panic!("[FATAL ERROR]: Too many arguments!");
+            } else if args.len() < 3 {
+                panic!("[FATAL ERROR]: Not enough arguments!");
+            }
             db.add_value(str_to_hash(args[2].clone().as_str()), args[3].clone()); 
             save_database(db); 
         }
         "delete" => { 
+            if args.len() > 2 {
+                panic!("[FATAL ERROR]: Too many arguments!");
+            } else if args.len() < 2 {
+                panic!("[FATAL ERROR]: Not enough arguments!");
+            }
             db.remove_value(str_to_hash(args[2].clone().as_str())); 
             save_database(db); 
         }
         "show" => { 
+            if args.len() > 2 {
+                panic!("[FATAL ERROR]: Too many arguments!");
+            } else if args.len() < 2 {
+                panic!("[FATAL ERROR]: Not enough arguments!");
+            }
             let values = db.find_values(str_to_hash(args[2].clone().as_str()));
             for value in values {
                 println!("{:?}", value);
@@ -29,6 +52,18 @@ fn main() {
             for value in db.table {
                 println!("{:?}", value.1);
             }
+        }
+        "help" => {
+            println!("Current selected database: {:?}", read_default());
+            println!("");
+            println!("Commands:\nset_database: Select a different database to read from.\nSyntax: cargo run set_database <NAME>
+                                \nprint_database: Show the currently selected database.\nSyntax: cargo run print_database
+                                \nread: Loads in the currently selected database. Unless something goes wrong, this is handled automatically.\nSyntax: cargo run read
+                                \ninsert: Adds a value into the currently selected database, under the given key.\nSyntax: cargo run insert <KEY> <VALUE>
+                                \ndelete: Removes a key from the currently selected database, along with any values.\nSyntax: cargo run delete <KEY>
+                                \nshow: Prints all values associated with a certain key from the currently selected database.\nSyntax: cargo run show <KEY>
+                                \nlist: Lists all values in the currently selected database.\nSyntax: cargo run list
+                                \nhelp: Prints a list of all commands, along with the currently selected database.\nSyntax: cargo run help");
         }
         _ => { eprintln!("[ERROR]: Unrecognized pattern: {:?}.", args[1]); }
     }
